@@ -13,47 +13,28 @@ export default function Post() {
     const userData = useSelector((state) => state.auth.userData);
 
     const isAuthor = post && userData ? post.userId === userData.$id : false;
+    
     useEffect(() => {
         if (slug) {
-            appwriteService.getPost(slug)
-                .then((post) => {
-                    if (post) setPost(post);
-                    else navigate("/");
-                })
-                .catch((error) => {
-                    console.error("Error fetching post:", error);
-                    navigate("/");
-                });
+            appwriteService.getPost(slug).then((post) => {
+                if (post) setPost(post);
+                else navigate("/");
+            });
         } else {
             navigate("/");
         }
     }, [slug, navigate]);
-    
+
     const deletePost = () => {
-        appwriteService.deletePost(post.$id)
-            .then((status) => {
-                if (status) {
-                    appwriteService.deleteFile(post.featuredImage)
-                        .catch(error => console.error("Error deleting file:", error));
-                    navigate("/");
-                } else {
-                    console.error("Failed to delete post.");
-                }
-            })
-            .catch(error => {
-                console.error("Error deleting post:", error);
-            });
+        appwriteService.deletePost(post.$id).then((status) => {
+            if (status) {
+                appwriteService.deleteFile(post.featuredImage);
+                navigate("/");
+            }
+
+        });
     };
-    
-    if (post === null) {
-        return <div>Loading...</div>; // Or your loading spinner/message
-    }
-    
-    return (
-        <div className="py-8">
-            {/* ...rest of your rendering logic */}
-        </div>
-    );
+
 
     return post ? (
         <div className="py-8">
@@ -83,7 +64,7 @@ export default function Post() {
                 </div>
                 <div className="browser-css">
                     {parse(post.content)}
-                    </div>
+                </div>
             </Container>
         </div>
     ) : null;
